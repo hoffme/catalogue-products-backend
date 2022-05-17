@@ -12,12 +12,7 @@ const setupRealtime = (io: Server) => {
             const socketIds = Array.from(eventsSubscriptions[eventId]);
             if (socketIds.length === 0) return;
 
-            const emitter = socketIds.reduce((emitter, socketId) => {
-                emitter.to(socketId);
-                return emitter;
-            }, io);
-
-            emitter.emit('notify', eventId, data);
+            io.to(socketIds).emit('notify', eventId, data);
         })
     })
 
