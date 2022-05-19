@@ -1,5 +1,7 @@
 import {Schema, model, Document} from "mongoose";
 
+import config from '../config';
+
 interface ImageJSON {
     id: string
     size: number
@@ -79,7 +81,7 @@ class Image implements ImageJSON {
     public get id(): string { return this.doc._id.toHexString() };
     public get size(): number { return this.doc.size };
     public get type(): string { return this.doc.type };
-    public get uri(): string { return `/api/images/${this.id}` }
+    public get uri(): string { return `${config.host}/api/images/${this.id}` }
     public get data(): Buffer | undefined { return this.doc.data };
 
 }
