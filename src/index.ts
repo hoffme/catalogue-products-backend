@@ -5,19 +5,13 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import ImageController from "./controllers/image";
-
 import apiRouter from "./api/rest";
 import setupRealtime from "./api/realtime";
 
 import config from "./config";
 
-const rootPath = __dirname.split('/').slice(0, -1).join('/') + '/';
-
 const main = async () => {
     await connectMongoose(config.mongo_uri);
-
-    ImageController.setPath(rootPath + config.images_path);
 
     const app = express();
     const httpServer = createServer(app);

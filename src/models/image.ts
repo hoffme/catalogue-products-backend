@@ -5,26 +5,27 @@ interface ImageJSON {
     size: number
     type: string
     uri: string
+    data?: Buffer
     createdAt: Date
 }
 
 interface ImageCreateParams {
-    id: string
     size: number
     type: string
+    data: Buffer
 }
 
 interface ImageDocument extends Document {
-    id: string
     size: number
     type: string
+    data: Buffer
     createdAt: Date
 }
 
 const schema = new Schema<ImageDocument>({
-    id: String,
     size: Number,
     type: String,
+    data: Buffer,
     createdAt: { type: Date, default: () => new Date() },
 });
 
@@ -33,14 +34,13 @@ const Model = model<ImageDocument>('Image', schema);
 class Image implements ImageJSON {
 
     public static async Find(id: string): Promise<Image | null> {
-        const doc = await Model.findOne({ id: id });
+        const doc = await Model.findOne({ _id: id });
         if (!doc) return null;
-
         return new Image(doc);
     }
 
     public static async All(): Promise<Image[]> {
-        const docs = await Model.find()
+        const docs = await Model.find({}, { id: 1, size: 1, type: 1, createdAt: 1 })
             .sort({ createdAt: 'desc' });
 
         return docs.map(doc => new Image(doc));
@@ -48,9 +48,9 @@ class Image implements ImageJSON {
 
     public static async Create(params: ImageCreateParams): Promise<Image> {
         const doc = new Model({
-            id: params.id,
             size: params.size,
-            type: params.type
+            type: params.type,
+            data: params.data
         });
         await doc.save();
 
@@ -76,10 +76,11 @@ class Image implements ImageJSON {
     }
 
     public get createdAt(): Date { return this.doc.createdAt };
-    public get id(): string { return this.doc.id };
+    public get id(): string { return this.doc._id.toHexString() };
     public get size(): number { return this.doc.size };
     public get type(): string { return this.doc.type };
     public get uri(): string { return `/api/images/${this.id}` }
+    public get data(): Buffer | undefined { return this.doc.data };
 
 }
 

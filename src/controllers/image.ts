@@ -1,4 +1,3 @@
-import { readFile } from "fs/promises";
 import {Request, Response} from "express";
 
 import Image from "../models/image";
@@ -24,16 +23,12 @@ class ImageController {
             return;
         }
 
-        let image: Image;
         Image.Find(id)
-            .then(data => {
-                if (!data) throw new Error('not found');
-                image = data;
-                return readFile(`${ImageController.path}/${id}`);
-            })
-            .then(buffer => {
+            .then(image => {
+                if (!image) throw new Error('not found');
+
                 res.writeHead(200, { 'Content-Type': image.type });
-                res.end(buffer);
+                res.end(image.data);
             })
             .catch(() => {
                 errorResponse(res, 404, new Error('not found'));
@@ -44,9 +39,9 @@ class ImageController {
         if (!req.file) throw new Error('internal error');
 
         const image = await Image.Create({
-            id: req.file.filename,
             size: req.file.size,
-            type: req.file.mimetype
+            type: req.file.mimetype,
+            data: req.file.buffer
         });
 
         return {
