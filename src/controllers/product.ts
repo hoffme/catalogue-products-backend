@@ -30,7 +30,7 @@ class ProductController {
     }
 
     public static async Search(req: Request): Promise<HandlerResult> {
-        const filter = req.body;
+        const filter = req.body || {};
 
         const products = await Product.Search(filter);
 
