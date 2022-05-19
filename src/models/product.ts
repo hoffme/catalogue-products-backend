@@ -74,15 +74,12 @@ class Product {
     public static async Search(params: ProductFilter): Promise<Product[]> {
         const offset = params.offset || 0;
         const limit = params.limit || 20;
-        const sort = { [params.orderBy || 'name']: params.orderAsc || 'desc' };
+        const sort = { [params.orderBy || 'name']: params.orderAsc === true ? 'asc' : 'desc' };
         const filter: any = {}
 
         if (params.id) filter._id = { $in: params.id };
 
-        if (params.query) {
-            filter.name = `/${params.query}/`;
-            filter.description = `/${params.query}/`;
-        }
+        if (params.query) filter.name = { $regex: params.query };
 
         if (params.priceMin || params.priceMax) filter.price = {};
         if (params.priceMin) filter.price.$gte = params.priceMin;
@@ -114,11 +111,11 @@ class Product {
     public async update(params: ProductUpdateParams): Promise<void> {
         this.doc.updatedAt = new Date();
 
-        if (params.name) this.doc.name = params.name;
-        if (params.description) this.doc.description = params.description;
-        if (params.image) this.doc.image = params.image;
-        if (params.price) this.doc.price = params.price;
-        if (params.stock) this.doc.stock = params.stock;
+        if (params.name !== undefined) this.doc.name = params.name;
+        if (params.description !== undefined) this.doc.description = params.description;
+        if (params.image !== undefined) this.doc.image = params.image;
+        if (params.price !== undefined) this.doc.price = params.price;
+        if (params.stock !== undefined) this.doc.stock = params.stock;
 
         await this.doc.save();
     }
